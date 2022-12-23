@@ -1,4 +1,5 @@
 from sys import argv
+from itertools import combinations
 import time
 
 def read_input(f):
@@ -75,4 +76,34 @@ if __name__ == "__main__" and len(argv) == 2:
   non_zero_valves = [ v for v, info in valve.items() if info[1] > 0]
   res, p = solve("AA", 31, non_zero_valves, valve, path)
   print(res, p)
+  print(round(time.time() - start_t, 3), 's')
+
+
+''' Part 2 '''
+if __name__ == "__main__" and len(argv) == 3 and argv[2] == '2':
+  start_t = time.time()
+  valve, edges = read_input(open(argv[1]))
+
+  path = shortest_paths(edges, len(valve))
+  print("Paths found")
+  print(round(time.time() - start_t, 3), 's')
+
+  non_zero_valves = [ v for v, info in valve.items() if info[1] > 0]
+  nr_non_zero = len(non_zero_valves)
+  best = 0
+  for l in range(nr_non_zero // 2, nr_non_zero):
+    print("len:", l)
+    local_best = best
+    for comb in combinations(non_zero_valves, l):
+      res_1, p_1 = solve("AA", 27, comb, valve, path)
+      anti_comb = [ v for v in non_zero_valves if v not in comb]
+      res_2, p_2 = solve("AA", 27, anti_comb, valve, path)
+      local_best = max(local_best, res_1 + res_2)
+
+    if local_best > best:
+      best = local_best
+    else:
+      break
+
+  print(best)
   print(round(time.time() - start_t, 3), 's')
